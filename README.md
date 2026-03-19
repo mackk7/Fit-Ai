@@ -1,6 +1,9 @@
 # FitAI — AI-Powered Personal Fitness Coach
 
-A full-stack fitness coaching web app powered by **Node.js + Express** (backend) and **React** (frontend), with **OpenAI GPT-4o** AI integration for real-time coaching, workout plan generation, and nutrition calculation.
+A full-stack fitness coaching web app built with **React**, **Node.js/Express**, and **MongoDB Atlas**, powered by **Groq LLaMA 3.3-70B** AI for real-time coaching, workout plan generation, and nutrition calculation.
+
+🔗 **Live Demo:** https://fitai.vercel.app  
+📁 **GitHub:** https://github.com/mackk7/Fit-Ai
 
 ---
 
@@ -8,11 +11,29 @@ A full-stack fitness coaching web app powered by **Node.js + Express** (backend)
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | React 18, React Router v6 |
+| Frontend | React 18, Context API, React Router |
 | Backend | Node.js, Express 4 |
-| AI | OpenAI GPT-4o API |
+| Database | MongoDB Atlas, Mongoose ODM |
+| AI | Groq API — LLaMA 3.3-70B |
+| Auth | JWT, bcrypt |
 | Styling | Custom CSS (no UI library) |
-| Deployment | Vercel (frontend + backend) or AWS |
+| Deployment | Render (backend) + Vercel (frontend) |
+
+---
+
+## Features
+
+- **JWT Authentication** — Secure register/login with bcrypt password hashing and protected API routes
+- **AI Coach Chat** — Multi-turn conversation with LLaMA 3.3-70B, persistent chat history per user stored in MongoDB
+- **AI Workout Plan Generator** — Input goal/level/days/equipment → AI generates a full weekly program
+- **AI Nutrition Calculator** — BMR/TDEE + personalised macro breakdown based on user biometrics
+- **Activity Log** — Full CRUD workout tracking with auto calorie calculation, saved to MongoDB per user
+- **Real-time Dashboard** — Live streak tracking, weekly activity bars, monthly goal progress from real data
+- **Progress Analytics** — 8-week calorie trend, workout type split, session milestones, all-time totals
+- **Custom Goals** — Users set their own monthly targets (sessions, minutes, calories) with quick presets
+- **Workout Library** — Filterable by type (Strength, Cardio, HIIT, Yoga)
+- **Rate Limiting** — 100 req/15min per IP
+- **CORS + Helmet** — Security headers and origin protection on all responses
 
 ---
 
@@ -21,192 +42,163 @@ A full-stack fitness coaching web app powered by **Node.js + Express** (backend)
 ```
 fitai/
 ├── backend/
-│   ├── server.js          # Express server + OpenAI integration
+│   ├── models/
+│   │   ├── User.js            # User schema + bcrypt password hashing
+│   │   ├── WorkoutLog.js      # Workout entry schema
+│   │   ├── ChatMessage.js     # AI chat history schema
+│   │   └── Goal.js            # Per-user monthly goal targets
+│   ├── routes/
+│   │   ├── auth.js            # Register, login, profile
+│   │   ├── logs.js            # Workout CRUD + streak update
+│   │   ├── chatHistory.js     # Save/fetch/clear AI chat history
+│   │   ├── goals.js           # Get/update user goals
+│   │   └── stats.js           # Dashboard + progress analytics
+│   ├── middleware/
+│   │   └── authMiddleware.js  # JWT verification middleware
+│   ├── server.js              # Express app + MongoDB connection
 │   ├── package.json
-│   ├── vercel.json        # Vercel serverless config
-│   └── .env.example       # Environment variable template
+│   └── .env.example
 │
 └── frontend/
-    ├── public/
-    │   └── index.html
     ├── src/
-    │   ├── App.js             # Root component + routing
-    │   ├── index.js
-    │   ├── index.css          # Global design system
+    │   ├── context/
+    │   │   └── AuthContext.js     # Global auth state
+    │   ├── pages/
+    │   │   ├── AuthPage.jsx       # Login + Register
+    │   │   ├── Dashboard.jsx      # Real-time stats dashboard
+    │   │   ├── AICoach.jsx        # AI chat coach
+    │   │   ├── Workouts.jsx       # Workout library
+    │   │   ├── WorkoutPlan.jsx    # AI plan generator
+    │   │   ├── Nutrition.jsx      # AI macro calculator
+    │   │   ├── ActivityLog.jsx    # CRUD workout log
+    │   │   ├── Progress.jsx       # Analytics + charts
+    │   │   └── Goals.jsx          # Custom goal setting
     │   ├── components/
     │   │   └── Sidebar.jsx
-    │   ├── pages/
-    │   │   ├── Dashboard.jsx
-    │   │   ├── AICoach.jsx        # ← Real-time AI chat
-    │   │   ├── Workouts.jsx
-    │   │   ├── WorkoutPlan.jsx    # ← AI plan generator
-    │   │   ├── Nutrition.jsx      # ← AI macro calculator
-    │   │   ├── ActivityLog.jsx
-    │   │   └── Progress.jsx
-    │   └── utils/
-    │       └── api.js         # All backend API calls
-    ├── package.json
-    └── vercel.json
+    │   ├── utils/
+    │   │   └── api.js             # All backend API calls
+    │   ├── App.js
+    │   └── index.css              # Design system + variables
+    └── package.json
 ```
 
 ---
 
 ## Local Development Setup
 
-### 1. Get an OpenAI API Key
-- Go to https://platform.openai.com/api-keys
-- Create a new secret key
-- Copy it — you'll need it in the next step
+### 1. Clone the repo
+```bash
+git clone https://github.com/mackk7/Fit-Ai.git
+cd Fit-Ai
+```
 
-### 2. Backend Setup
+### 2. Get your free API keys
+- **Groq** (AI) — [console.groq.com](https://console.groq.com) → free, no card needed
+- **MongoDB Atlas** (database) — [mongodb.com/atlas](https://mongodb.com/atlas) → free M0 cluster
 
+### 3. Backend setup
 ```bash
 cd backend
 npm install
-
-# Create .env file
 cp .env.example .env
-# Edit .env and add your OPENAI_API_KEY
-
+# Fill in your keys in .env
 npm run dev
-# Backend runs on http://localhost:5000
+# Runs on http://localhost:5000
 ```
 
-### 3. Frontend Setup
-
+### 4. Frontend setup
 ```bash
 cd frontend
 npm install
-
-# Create .env.local
 echo "REACT_APP_API_URL=http://localhost:5000" > .env.local
-
 npm start
-# Frontend runs on http://localhost:3000
+# Runs on http://localhost:3000
 ```
+
+---
+
+## Environment Variables
+
+### Backend (`backend/.env`)
+| Variable | Description |
+|----------|-------------|
+| `GROQ_API_KEY` | Groq API key from console.groq.com |
+| `MONGODB_URI` | MongoDB Atlas connection string |
+| `JWT_SECRET` | Any long random string |
+| `JWT_EXPIRES_IN` | Token expiry e.g. `7d` |
+| `PORT` | Server port (default `5000`) |
+| `FRONTEND_URL` | Allowed CORS origin |
+
+### Frontend (`frontend/.env.local`)
+| Variable | Description |
+|----------|-------------|
+| `REACT_APP_API_URL` | Backend URL |
 
 ---
 
 ## API Endpoints
 
-### `GET /api/health`
-Health check — returns `{ status: "ok" }`
+### Auth
+| Method | Route | Description |
+|--------|-------|-------------|
+| POST | `/api/auth/register` | Create account |
+| POST | `/api/auth/login` | Login + get JWT |
+| GET | `/api/auth/me` | Get current user |
+| PATCH | `/api/auth/profile` | Update profile |
 
-### `POST /api/chat`
-AI coaching chat.
-```json
-Request:  { "messages": [{ "role": "user", "content": "Build me a workout plan" }] }
-Response: { "reply": "...", "usage": { "total_tokens": 450 } }
-```
+### Workout Logs
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/logs` | Get all user logs |
+| POST | `/api/logs` | Add workout entry |
+| PATCH | `/api/logs/:id` | Edit entry |
+| DELETE | `/api/logs/:id` | Delete entry |
+| GET | `/api/logs/stats` | Summary stats |
 
-### `POST /api/workout-plan`
-Generate a custom workout plan.
-```json
-Request:  { "goal": "build muscle", "level": "intermediate", "days": 4, "equipment": "full gym" }
-Response: { "plan": "DAY 1: Push Day\n..." }
-```
+### AI
+| Method | Route | Description |
+|--------|-------|-------------|
+| POST | `/api/chat` | AI coach message |
+| POST | `/api/workout-plan` | Generate workout plan |
+| POST | `/api/nutrition` | Calculate macros |
 
-### `POST /api/nutrition`
-Calculate personalized macros.
-```json
-Request:  { "weight": 75, "height": 175, "age": 25, "gender": "male", "activityLevel": "moderately active", "goal": "build muscle" }
-Response: { "nutrition": "BMR: 1820 kcal\nTDEE: 2820 kcal\n..." }
-```
+### Stats & Goals
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/stats/dashboard` | Dashboard data |
+| GET | `/api/stats/progress` | Progress analytics |
+| GET | `/api/goals` | Get user goals |
+| PUT | `/api/goals` | Save user goals |
 
 ---
 
 ## Deployment
 
-### Option A: Vercel (Recommended — Free)
+### Backend — Render (Free)
+1. Go to [render.com](https://render.com) → New Web Service
+2. Connect GitHub repo → Root directory: `backend`
+3. Build: `npm install` · Start: `node server.js`
+4. Add all 6 environment variables in Render dashboard
+5. Deploy → copy your URL e.g. `https://fitai-api.onrender.com`
 
-**Deploy Backend:**
-```bash
-cd backend
-npm install -g vercel
-vercel login
-vercel
+### Frontend — Vercel (Free)
+1. Go to [vercel.com](https://vercel.com) → Import GitHub repo
+2. Root directory: `frontend`
+3. Add env variable: `REACT_APP_API_URL=https://fitai-api.onrender.com`
+4. Deploy → get your live URL
 
-# In Vercel dashboard → Settings → Environment Variables:
-# Add: OPENAI_API_KEY = sk-your-key
-# Add: FRONTEND_URL = https://your-frontend.vercel.app
-```
-
-**Deploy Frontend:**
-```bash
-cd frontend
-# Edit .env.local → set REACT_APP_API_URL to your backend Vercel URL
-vercel
-```
-
-### Option B: AWS (EC2 + S3/CloudFront)
-
-**Backend on EC2:**
-```bash
-# On your EC2 instance (Ubuntu):
-sudo apt update && sudo apt install nodejs npm nginx -y
-git clone <your-repo>
-cd fitai/backend
-npm install
-
-# Set environment variables
-export OPENAI_API_KEY=sk-your-key
-export PORT=5000
-export FRONTEND_URL=https://your-cloudfront-domain.com
-
-# Run with PM2 for persistence
-npm install -g pm2
-pm2 start server.js --name fitai-api
-pm2 save && pm2 startup
-
-# Configure Nginx as reverse proxy (port 80 → 5000)
-```
-
-**Frontend on S3 + CloudFront:**
-```bash
-cd frontend
-REACT_APP_API_URL=https://your-ec2-ip-or-domain npm run build
-# Upload /build folder contents to your S3 bucket
-# Enable Static Website Hosting on S3
-# Attach CloudFront distribution for HTTPS
-```
+> **Note:** Render free tier sleeps after 15 min inactivity. First request may take ~30s to wake up.
 
 ---
 
-## Environment Variables Reference
+## Resume Bullets
 
-### Backend (.env)
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `OPENAI_API_KEY` | OpenAI secret key | `sk-proj-...` |
-| `PORT` | Server port | `5000` |
-| `FRONTEND_URL` | Allowed CORS origin | `https://fitai.vercel.app` |
-
-### Frontend (.env.local)
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `REACT_APP_API_URL` | Backend URL | `https://fitai-api.vercel.app` |
-
----
-
-## Features
-
-- **AI Chat Coach** — Multi-turn conversation with GPT-4o, persistent message history per session
-- **Workout Plan Generator** — Input goal/level/days → AI generates a full weekly program
-- **Nutrition Calculator** — BMR/TDEE + macro breakdown via AI
-- **Workout Library** — Filter by type (Strength, Cardio, HIIT, Yoga)
-- **Activity Log** — Session history with calories and time tracking
-- **Progress Tracker** — Strength PRs, body composition, monthly goals
-- **Rate Limiting** — 60 req/15min per IP to protect your OpenAI bill
-- **CORS Protection** — Only your frontend domain can call the API
-- **Helmet** — Security headers on all responses
-
----
-
-## Resume Description
-
-> Built a full-stack AI fitness coaching web application using **React** (frontend) and **Node.js/Express** (backend), integrated with **OpenAI GPT-4o** to deliver real-time personalized workout coaching, dynamic workout plan generation, and macro nutrition calculations. Implemented REST APIs with rate limiting, CORS protection, and security headers. Deployed on **Vercel** with environment-based configuration. Features include multi-turn AI chat, workout library with filtering, activity log, and progress analytics dashboard.
+- Built and deployed a full-stack AI fitness web app using **React, Node.js, and Express**, implementing RESTful APIs with modular route architecture, middleware-based authentication, and clean separation of frontend and backend concerns
+- Designed **MongoDB schemas** with Mongoose for 4 relational-style models (User, WorkoutLog, Goal, ChatMessage), handling data relationships, validation, and efficient querying for real-time analytics dashboards
+- Developed a responsive, component-based **React frontend** with Context API for global state management, dynamic routing across 8 pages, and real-time UI updates reflecting live database changes without page refresh
+- Integrated **Groq LLaMA 3.3 AI API** with multi-turn conversation handling and prompt engineering to deliver contextual fitness coaching, replacing and iterating across multiple AI providers (OpenAI, Gemini, Groq) to solve quota and compatibility issues in production
 
 ---
 
 ## License
-MIT — free to use, modify, and deploy.
+MIT © 2026 mackk7
