@@ -2,7 +2,7 @@
 
 A full-stack fitness coaching web app built with **React**, **Node.js/Express**, and **MongoDB Atlas**, powered by **Groq LLaMA 3.3-70B** AI for real-time coaching, workout plan generation, and nutrition calculation.
 
-🔗 **Live Demo:** https://fitai.vercel.app  
+🔗 **Live Demo:** [https://fitai.vercel.app](https://fit-plqgwrhfd-mayanks-projects-415e1968.vercel.app)  
 📁 **GitHub:** https://github.com/mackk7/Fit-Ai
 
 ---
