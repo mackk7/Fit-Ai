@@ -7,6 +7,7 @@ const mongoose = require("mongoose");
 const Groq = require("groq-sdk");
 
 const app = express();
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 5000;
 
 // ─── Groq Client ──────────────────────────────────────────────────
