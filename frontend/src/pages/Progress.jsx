@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getProgressStats } from '../utils/api';
-import { useAuth } from '../context/AuthContext';
+
 
 const TYPE_COLORS = {
   strength: '#c6f135',
@@ -13,7 +13,6 @@ const TYPE_COLORS = {
 const LEVEL_PCT = { beginner: 25, intermediate: 60, advanced: 90 };
 
 export default function Progress() {
-  const { user } = useAuth();
   const [stats, setStats]     = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState('');
